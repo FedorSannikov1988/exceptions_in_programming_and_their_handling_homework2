@@ -22,7 +22,7 @@ public class Main {
     public static void main(String[] args) {
 
         //Задание №1
-        //System.out.println(inputNamberFloat());
+        System.out.println(inputNamberFloat());
 
         /*Задание №2
         Если необходимо, исправьте данный код из задачи 2
@@ -50,7 +50,7 @@ public class Main {
         (все, итак, криво/косо, но работать будет).
 
         Если же количество элементов в intArray не известно перед выполнением
-        операции я бы добавил:
+        операции/метода я бы добавил:
         */
 
         //Предположим что:
@@ -108,7 +108,7 @@ public class Main {
         }
         */
 
-        //Исправлено:
+        //Исправлено на:
         /*
         public static void main(String[] args) {
             try {
@@ -133,23 +133,27 @@ public class Main {
         В данном коде/(куске кода) именно с этими магическими числами (этими переменными) не вижу смысла в:
         1. catch (NullPointerException ex) { System.out.println("Указатель не может указывать на null!"); }
         на "своем месте" не мешает выполнению кода однако не вижу ситуации
-        при которой оно может "пригодиться" так как в приведенном куске кода
+        при которой оно (исключение) может "пригодиться" так как в приведенном куске кода
         просто не присвоено null не одной переменной.
 
-        2. catch (Throwable ex) { System.out.println("Что-то пошло не так..."); } единственная
-        ситуация которая спровоцирована в коде это IndexOutOfBoundsException. Конечно Throwable ex не помешает
-        выполнению кода, но и смысла в нем не вижу (да и если бы я ставил исключения такого рода
-        то спустился бы на уровень Exception или RuntimeException (какой смысл забираться так высоко аж к Throwable
-        родителю всех исключений)).
+        2. catch (Throwable ex) { System.out.println("Что-то пошло не так..."); } нужна поставить
+        после всех исключений (тесть после IndexOutOfBoundsException и NullPointerException),
+        так как это предок всех типов исключений.
+
+        То есть порядок должен быть таким:
+         catch (IndexOutOfBoundsException ex) {System.out.println("Массив выходит за пределы своего размера!");}
+         catch (NullPointerException ex) {System.out.println("Указатель не может указывать на null!");}
+         catch (Throwable ex) {System.out.println("Что-то пошло не так...");}
+
+         Однако конкретно в данном коде (с данными магическими числами) не вижу ситуации зачем он
+          (Throwable ex) может приходиться (поэтому так же убрал его из кода).
+          Так же предполагаю что Throwable ex можно заменить на Exception, но в таком случае
+          нужно будет еще добавить throws Exception в main.
         */
 
         //Задание №4
         System.out.println("Эхо:" + dialogueWithUser());
 
-    }
-
-    public static void printSum(int a, int b) {
-        System.out.println(a + b);
     }
 
     /*
@@ -175,12 +179,10 @@ public class Main {
                 message.printStackTrace();
                 System.out.println("Вы ввели не число в следствии чего вызвали NumberFormatException");
             }
+            //На всякий случай (подниматься выше к предку Exception не вижу смысла):
             catch (RuntimeException message) {
                 message.printStackTrace();
                 System.out.println("При вводе данных произошёл сбой!");
-                /*
-                Подниматься по иерархии исключений в Exception выше не вижу смысла
-                */
             }
         }
     }
@@ -188,22 +190,20 @@ public class Main {
     private static String replacingOneCommaWithDot(Scanner inData) {
 
         //nextLine() - что бы можно было ввести пустую строку
+        //так как при использовании метода next() пустую строку
+        //ввести не получится
         String inDataString = inData.nextLine();
         //String inDataString = inData.next();
 
-        int countPoint = 0;
+        boolean flagForСomma = inDataString.contains(",");
 
-        boolean flagForCountPoint = inDataString.contains(",");
-
-        if (flagForCountPoint) {
+        if (flagForСomma) {
             String[] splitForCountPoint = inDataString.split("\\,");
-            countPoint = splitForCountPoint.length - 1;
-        }
 
-        if (countPoint == 1) {
-            inDataString = inDataString.replace("," , ".");
+            if (splitForCountPoint.length - 1 == 1) {
+                inDataString = inDataString.replace("," , ".");
+            }
         }
-
         return inDataString;
     }
 
@@ -232,13 +232,17 @@ public class Main {
 
             String inDataString = inData.nextLine();
 
-            if ( inDataString.isEmpty() || inDataString.trim().isEmpty() ) {
-                throw new Exception("Пустую строку или строку из одних пробелов вводить нельзя");
-                //Можно без проблем шагнуть на уровень ниже что бы не использовать throws Exception:
-                //throw new RuntimeException("Пустую строку или строку из одних пробелов вводить нельзя");
-                //но в задании четко сказано использовать Exception:
+            if ( inDataString.isEmpty() ) {
+                throw new Exception("Пустую строку вводить нельзя");
+                //Так же для того что бы не использовать throws Exception указывая,
+                //что методе может бросить исключение можно использовать
+                //не проверяемые исключения
+                // throw new RuntimeException("Пустую строку вводить нельзя");
             }
 
+            if ( inDataString.trim().isEmpty() ) {
+                throw new Exception("Строку состоящую из одних пробелов вводить нельзя");
+            }
             return inDataString;
     }
 
