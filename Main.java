@@ -152,7 +152,7 @@ public class Main {
         */
 
         //Задание №4
-        System.out.println("Эхо:" + dialogueWithUser());
+        System.out.println("Эхо: " + dialogueWithUser());
 
     }
 
